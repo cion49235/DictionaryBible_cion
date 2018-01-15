@@ -15,7 +15,6 @@ import com.admixer.InterstitialAdListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -29,8 +28,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
@@ -51,6 +50,8 @@ import dictionary.bible.view.cion.data.DictionnaryList;
 import dictionary.bible.view.cion.data.Main_Data;
 import dictionary.bible.view.cion.util.KoreanTextMatch;
 import dictionary.bible.view.cion.util.KoreanTextMatcher;
+import dictionary.bible.view.cion.util.PreferenceUtil;
+import kr.co.inno.autocash.service.AutoServiceActivity;
 
 public class MainActivity extends Activity implements OnItemClickListener, OnClickListener, OnScrollListener, AdViewListener, CustomPopupListener, InterstitialAdListener {
 	private ListView listview_main;
@@ -89,7 +90,14 @@ public class MainActivity extends Activity implements OnItemClickListener, OnCli
 		display_list();
 		seacher_start();
 		exit_handler();
+		auto_service();
 	}
+	
+	private void auto_service() {
+        Intent intent = new Intent(context, AutoServiceActivity.class);
+        context.stopService(intent);
+        context.startService(intent);
+    }
 	
 	@Override
 	protected void onDestroy() {
@@ -103,6 +111,12 @@ public class MainActivity extends Activity implements OnItemClickListener, OnCli
 	protected void onRestart() {
 		super.onRestart();
 //		addInterstitialView();
+	}
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		PreferenceUtil.setBooleanSharedData(context, PreferenceUtil.PREF_AD_VIEW, false);
 	}
 	
 	public void addBannerView() {
@@ -298,6 +312,7 @@ public class MainActivity extends Activity implements OnItemClickListener, OnCli
 					 handler.postDelayed(new Runnable() {
 						 @Override
 						 public void run() {
+							 PreferenceUtil.setBooleanSharedData(context, PreferenceUtil.PREF_AD_VIEW, true);
 							 finish();
 						 }
 					 },0);
