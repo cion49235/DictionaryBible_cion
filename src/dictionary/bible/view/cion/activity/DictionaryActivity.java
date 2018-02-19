@@ -3,6 +3,8 @@ package dictionary.bible.view.cion.activity;
 import com.admixer.AdAdapter;
 import com.admixer.AdInfo;
 import com.admixer.AdMixerManager;
+import com.admixer.AdView;
+import com.admixer.AdViewListener;
 import com.admixer.InterstitialAd;
 import com.admixer.InterstitialAdListener;
 import com.google.android.gms.ads.AdRequest;
@@ -20,6 +22,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -31,7 +34,7 @@ import dictionary.bible.view.cion.R;
 import dictionary.bible.view.cion.util.Crypto;
 import dictionary.bible.view.cion.util.Utils;
 
-public class DictionaryActivity extends Activity implements InterstitialAdListener {
+public class DictionaryActivity extends Activity implements AdViewListener,InterstitialAdListener {
 	private Context context;;
 	private boolean retry_alert = false;
 	private Handler handler = new Handler();
@@ -43,23 +46,32 @@ public class DictionaryActivity extends Activity implements InterstitialAdListen
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_dictionary);
-		txt_dictionary_title = (TextView)findViewById(R.id.txt_dictionary_title);
 		context = this;
+		retry_alert = true;
+		
+		txt_dictionary_title = (TextView)findViewById(R.id.txt_dictionary_title);
+		
 		AdMixerManager.getInstance().setAdapterDefaultAppCode(AdAdapter.ADAPTER_ADMIXER, "aq03oj5h");
 		AdMixerManager.getInstance().setAdapterDefaultAppCode(AdAdapter.ADAPTER_ADMOB, "ca-app-pub-4637651494513698/6004452964");
 		AdMixerManager.getInstance().setAdapterDefaultAppCode(AdAdapter.ADAPTER_ADMOB_FULL, "ca-app-pub-4637651494513698/7481186160");
 		
-		RelativeLayout nativeContainer = (RelativeLayout) findViewById(R.id.admob_native);
-		AdRequest adRequest = new AdRequest.Builder().build();	    
-		admobNative = new NativeExpressAdView(this);
-		admobNative.setAdSize(new AdSize(360, 100));
-		admobNative.setAdUnitId("ca-app-pub-4637651494513698/8957919362");
-		nativeContainer.addView(admobNative);
-		admobNative.loadAd(adRequest);
-		
-		retry_alert = true;
+		addBannerView();
 		display_list();
 	}
+	
+	private RelativeLayout ad_layout;
+	public void addBannerView() {
+    	AdInfo adInfo = new AdInfo("aq03oj5h");
+    	adInfo.setTestMode(false);
+        com.admixer.AdView adView = new com.admixer.AdView(this);
+        adView.setAdInfo(adInfo, this);
+        adView.setAdViewListener(this);
+        ad_layout = (RelativeLayout)findViewById(R.id.ad_layout);
+        if(ad_layout != null){
+        	RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+            ad_layout.addView(adView, params);	
+        }
+    }
 	
 	private void display_list(){
 		String get_name = getIntent().getStringExtra("name");
@@ -82,19 +94,16 @@ public class DictionaryActivity extends Activity implements InterstitialAdListen
 	@Override
 	protected void onPause() {
 		super.onPause();
-		admobNative.pause();
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		admobNative.resume();
 	}
 	
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		admobNative.destroy();
 		retry_alert = false;
 		finish();
 	}
@@ -263,4 +272,25 @@ public class DictionaryActivity extends Activity implements InterstitialAdListen
 		// TODO Auto-generated method stub
 		
 	}
+	
+	//** BannerAd 이벤트들 *************
+	@Override
+	public void onClickedAd(String arg0, AdView arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onFailedToReceiveAd(int arg0, String arg1, AdView arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onReceivedAd(String arg0, AdView arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
 }
